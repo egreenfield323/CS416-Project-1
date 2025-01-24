@@ -1,6 +1,5 @@
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -9,7 +8,7 @@ import java.util.Properties;
 
 public class ConfigParser {
 
-    private File configFile;
+    private final File configFile;
 
     public ConfigParser(File configFile) {
         this.configFile = configFile;
@@ -44,7 +43,7 @@ public class ConfigParser {
             System.err.println("Could not read config file " + e);
         }
 
-        if (result.size() == 0) {
+        if (result.isEmpty()) {
             System.err.println("Could not find any neighbors for MAC address " + mac);
         }
 
