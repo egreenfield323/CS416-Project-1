@@ -44,7 +44,7 @@ public class ConfigParser {
             System.err.println("Could not read config file " + e);
         }
 
-        if (result.size() <= 0) {
+        if (result.size() == 0) {
             System.err.println("Could not find any neighbors for MAC address " + mac);
         }
 
