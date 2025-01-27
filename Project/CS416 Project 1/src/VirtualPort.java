@@ -9,8 +9,12 @@ public class VirtualPort {
         this.port = port;
     }
 
-
     public String toString() {
         return ip.toString() + ":" + port;
+    }
+
+    public boolean equals(VirtualPort other)
+    {
+        return ip.equals(other.ip) && port == other.port;
     }
 }
