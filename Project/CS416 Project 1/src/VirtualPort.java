@@ -8,4 +8,9 @@ public class VirtualPort {
         this.ip = ip;
         this.port = port;
     }
+
+
+    public String toString() {
+        return ip.toString() + ":" + port;
+    }
 }
