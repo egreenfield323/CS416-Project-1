@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -36,7 +37,8 @@ public class ConfigParser {
                 String info = prop.getProperty(current_mac);
                 String ip = info.substring(0, info.indexOf(':'));
                 int port = Integer.parseInt(info.substring(info.indexOf(':') + 1));
-                result.add(new VirtualPort(ip, port));
+                InetAddress inet_address = InetAddress.getByName(ip);
+                result.add(new VirtualPort(inet_address, port));
             }
 
         } catch (IOException e) {
@@ -61,7 +63,8 @@ public class ConfigParser {
             String info = prop.getProperty(mac);
             String ip = info.substring(0, info.indexOf(':'));
             int port = Integer.parseInt(info.substring(info.indexOf(':') + 1));
-            result = (new VirtualPort(ip, port));
+            InetAddress inet_address = InetAddress.getByName(ip);
+            result = (new VirtualPort(inet_address, port));
 
         } catch (IOException e) {
             System.err.println("Could not read config file " + e);
