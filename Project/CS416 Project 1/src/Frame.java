@@ -21,6 +21,11 @@ public class Frame {
         message = msg;
     }
 
+    // Intended for frames that read from a packet.
+    public Frame() {
+        this("", "", "");
+    }
+
     public String[] readPacket(DatagramPacket packet) {
         // returns array of strings in this order:
         // source mac, destination mac, message, destination ip, destination port
