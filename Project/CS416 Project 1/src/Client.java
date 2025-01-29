@@ -6,8 +6,8 @@ import java.util.Scanner;
 
 public class Client {
     public static void main(String[] args) throws Exception{
-        if(args.length != 2){
-            System.out.println("Please specify server IP and port.");
+        if(args.length != 3){
+            System.out.println("Please specify server IP and port, and self port.");
             return;
         }
 
@@ -17,7 +17,8 @@ public class Client {
         Scanner keyboard = new Scanner(System.in);
         String message = keyboard.nextLine();
 
-        DatagramSocket socket = new DatagramSocket();
+        int selfPort = Integer.parseInt(args[2]);
+        DatagramSocket socket = new DatagramSocket(selfPort);
 
         DatagramPacket request = new DatagramPacket(
                 message.getBytes(),
