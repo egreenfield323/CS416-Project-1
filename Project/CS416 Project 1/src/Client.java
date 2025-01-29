@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 public class Client {
     public static void main(String[] args) throws Exception{
-        if(args.length != 3){
+        if(args.length != 5){
             System.out.println("Please specify server IP and port, and self port.");
             return;
         }
@@ -17,16 +17,14 @@ public class Client {
         Scanner keyboard = new Scanner(System.in);
         String message = keyboard.nextLine();
 
+        Frame frame = new Frame(args[3], args[4], message);
+
         int selfPort = Integer.parseInt(args[2]);
         DatagramSocket socket = new DatagramSocket(selfPort);
 
-        DatagramPacket request = new DatagramPacket(
-                message.getBytes(),
-                message.getBytes().length,
-                serverIP,
-                serverPort
-        );
-        socket.send(request);
+        DatagramPacket packet = frame.writePacket(serverIP, serverPort);
+
+        socket.send(packet);
 
         DatagramPacket reply = new DatagramPacket(new byte[1024], 1024);
         socket.receive(reply);
