@@ -35,25 +35,16 @@ public class Frame {
         data = packet.getData();
         ByteBuffer buffer = ByteBuffer.wrap(data);
 
-        int sMacLength = buffer.getInt();
-        byte[] sMacBytes = new byte[sMacLength];
-        buffer.get(sMacBytes);
-        String sMac = new String(sMacBytes);
-        sourceMac = sMac;
+        String[] info = new String[]{"", "", "", destIp.toString(), Integer.toString(destPort)};
 
-        int dMacLength = buffer.getInt();
-        byte[] dMacBytes = new byte[dMacLength];
-        buffer.get(dMacBytes);
-        String dMac = new String(dMacBytes);
-        destMac = dMac;
-
-        int msgLength = buffer.getInt();
-        byte[] msgBytes = new byte[msgLength];
-        buffer.get(msgBytes);
-        String msg = new String(msgBytes);
-        message = msg;
-
-        return new String[] { sourceMac, destMac, message, destIp.toString(), Integer.toString(destPort) };
+        for (int i = 0; i < 3; i++) {
+            int length = buffer.getInt();
+            byte[] bytes = new byte[length];
+            buffer.get(bytes);
+            info[i] = new String(bytes);
+        }
+        
+        return info;
     }
 
     public DatagramPacket writePacket(InetAddress dIP, int dPort) {
