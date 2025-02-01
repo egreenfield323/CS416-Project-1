@@ -94,7 +94,14 @@ public class Host {
                 Frame frame = new Frame();
                 frame.readPacket(receivedPacket);
 
-                System.out.printf("Received from %s:\n%s\n", frame.destMac, frame.message);
+                if (!frame.destMac.equals(sourceMac)) {
+                    System.out.printf(
+                            "Received packet addressed to %s from %s, dropping.\n",
+                            frame.destMac, frame.sourceMac
+                    );
+                }
+
+                System.out.printf("Received from %s:\n%s\n", frame.sourceMac, frame.message);
             }
             catch (IOException exception) {
                 System.err.println("Failure receiving packet: " + exception.getMessage());
