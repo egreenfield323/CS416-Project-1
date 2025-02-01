@@ -1,13 +1,10 @@
 import java.net.DatagramPacket;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 public class Frame {
-
-    public DatagramPacket packet;
-
     public byte[] data;
     public InetAddress destIp;
     public int destPort;
@@ -26,7 +23,7 @@ public class Frame {
         this("", "", "");
     }
 
-    public String[] readPacket(DatagramPacket packet) {
+    public void readPacket(DatagramPacket packet) {
         // returns array of strings in this order:
         // source mac, destination mac, message, destination ip, destination port
         destIp = packet.getAddress();
@@ -35,16 +32,20 @@ public class Frame {
         data = packet.getData();
         ByteBuffer buffer = ByteBuffer.wrap(data);
 
-        String[] info = new String[]{"", "", "", destIp.toString(), Integer.toString(destPort)};
+        int sourceMacLength = buffer.getInt();
+        byte[] sourceMacBytes = new byte[sourceMacLength];
+        buffer.get(sourceMacBytes);
+        sourceMac = new String(sourceMacBytes);
 
-        for (int i = 0; i < 3; i++) {
-            int length = buffer.getInt();
-            byte[] bytes = new byte[length];
-            buffer.get(bytes);
-            info[i] = new String(bytes);
-        }
-        
-        return info;
+        int destMacLength = buffer.getInt();
+        byte[] destMacBytes = new byte[destMacLength];
+        buffer.get(destMacBytes);
+        destMac = new String(sourceMacBytes);
+
+        int messageLength = buffer.getInt();
+        byte[] messageBytes = new byte[messageLength];
+        buffer.get(messageBytes);
+        message = new String(messageBytes);
     }
 
     public DatagramPacket writePacket(InetAddress dIP, int dPort) {
@@ -61,15 +62,16 @@ public class Frame {
         return new DatagramPacket(payload, payload.length, dIP, dPort);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnknownHostException {
 
         Frame test = new Frame("7c:7e:eb:c5:e1:57", "97:f9:01:c2:8e:e7", "hello");
 
-        DatagramPacket packet = test.writePacket(new InetSocketAddress(3000).getAddress(), 3000);
+        DatagramPacket packet = test.writePacket(InetAddress.getByName("172.0.0.1"), 3000);
         test.readPacket(packet);
 
-        for (String i : test.readPacket(packet)) {
-            System.out.println(i);
-        }
+        System.out.printf(
+                "Source: %s, Destination: %s, Message:\n%s\nVirtual Port: %s:%d\n",
+                test.sourceMac, test.destMac, test.message, test.destIp, test.destPort
+        );
     }
 }
