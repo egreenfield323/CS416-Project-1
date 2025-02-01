@@ -28,8 +28,15 @@ public class ConfigParser {
 
             for (Enumeration<?> e = prop.propertyNames(); e.hasMoreElements(); ) {
                 String current_mac = (String) e.nextElement();
-                if (current_mac.startsWith(mac) && !current_mac.equals(mac)) {
+                if (current_mac.equals(mac)) {
+                    continue;
+                }
+
+                if (current_mac.startsWith(mac)) {
                     macs.add(current_mac.substring(current_mac.indexOf('-') + 1));
+                }
+                else if (current_mac.endsWith(mac)) {
+                    macs.add(current_mac.substring(0, current_mac.indexOf('-')));
                 }
             }
 
