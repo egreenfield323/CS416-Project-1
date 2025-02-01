@@ -40,7 +40,7 @@ public class Frame {
         int destMacLength = buffer.getInt();
         byte[] destMacBytes = new byte[destMacLength];
         buffer.get(destMacBytes);
-        destMac = new String(sourceMacBytes);
+        destMac = new String(destMacBytes);
 
         int messageLength = buffer.getInt();
         byte[] messageBytes = new byte[messageLength];
