@@ -31,6 +31,8 @@ public class Switch {
             System.exit(1);
         }
 
+        System.out.println("Reading config: " + args[0] + ", with MAC " + args[1]);
+
         File configPath = new File(System.getProperty("user.dir"), args[0]);
         if (!configPath.isFile()) {
             System.err.println(configPath + " does not exist or is not a file.");
