@@ -10,11 +10,11 @@ public class VirtualPort {
     }
 
     public String toString() {
-        return ip.toString() + ":" + port;
+        return ip.getHostAddress() + ":" + port;
     }
 
     public boolean equals(VirtualPort other)
     {
-        return ip.equals(other.ip) && port == other.port;
+        return ip.getHostAddress().equals(other.ip.getHostAddress()) && port == other.port;
     }
 }
