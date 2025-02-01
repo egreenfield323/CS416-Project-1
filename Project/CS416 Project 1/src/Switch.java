@@ -91,7 +91,7 @@ public class Switch {
             VirtualPort sourcePort = new VirtualPort(frame.destIp, frame.destPort);
             for (VirtualPort port: ports)
             {
-                if (port == sourcePort)
+                if (port.equals(sourcePort))
                 {
                     continue;
                 }
