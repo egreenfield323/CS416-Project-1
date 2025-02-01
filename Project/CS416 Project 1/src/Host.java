@@ -99,6 +99,7 @@ public class Host {
                             "Received packet addressed to %s from %s, dropping.\n",
                             frame.destMac, frame.sourceMac
                     );
+                    continue;
                 }
 
                 System.out.printf("Received from %s:\n%s\n", frame.sourceMac, frame.message);
