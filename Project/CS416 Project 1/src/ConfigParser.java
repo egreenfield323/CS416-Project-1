@@ -34,8 +34,7 @@ public class ConfigParser {
 
                 if (current_mac.startsWith(mac)) {
                     macs.add(current_mac.substring(current_mac.indexOf('-') + 1));
-                }
-                else if (current_mac.endsWith(mac)) {
+                } else if (current_mac.endsWith(mac)) {
                     macs.add(current_mac.substring(0, current_mac.indexOf('-')));
                 }
             }
@@ -77,5 +76,26 @@ public class ConfigParser {
             System.err.println("Could not read config file " + e);
         }
         return result;
+    }
+
+
+    public String ResolveAddress(VirtualIP vIP) {
+        String mac = "";
+        Properties prop = new Properties();
+
+        try (FileInputStream fis = new FileInputStream(this.configFile)) {
+
+            prop.load(fis);
+            mac = prop.getProperty(vIP.toString());
+
+        } catch (IOException e) {
+            System.err.println("Could not read config file " + e);
+        }
+
+        if (mac.equals("")) {
+            System.err.println("Could not find Mac from " + vIP.toString());
+        }
+
+        return mac;
     }
 }
