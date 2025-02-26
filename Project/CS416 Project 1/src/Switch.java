@@ -19,7 +19,7 @@ public class Switch {
     private static int hostingPort;
 
     // Args: [config file path] [virtual MAC address]
-    // Example: ./config_files/complete.conf S1
+    // Example: ./config_files/local.conf S1
     public static void main(String[] args) {
         readArgs(args);
         waitForPackets();
