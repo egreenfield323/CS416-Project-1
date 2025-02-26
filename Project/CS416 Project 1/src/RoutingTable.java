@@ -4,9 +4,11 @@ public class RoutingTable {
     public HashMap<String, VirtualIP> nextHopTable;
     public HashMap<String, String> portTable;
 
-    public void addNextHopEntry(String subnet, VirtualIP nextHopRouter) {}
+    public RoutingTable() {
+        this.nextHopTable = new HashMap<>();
+        this.portTable = new HashMap<>();
+    }
 
-    public void addPortEntry(String subnet, String neighborMAC) {}
     public String toString() {
         StringBuilder ret = new StringBuilder("");
 
