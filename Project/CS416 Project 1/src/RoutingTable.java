@@ -7,6 +7,24 @@ public class RoutingTable {
     public void addNextHopEntry(String subnet, VirtualIP nextHopRouter) {}
 
     public void addPortEntry(String subnet, String neighborMAC) {}
+    public String toString() {
+        StringBuilder ret = new StringBuilder("");
+
+        if (portTable != null) {
+            ret.append("\nPort table: \n");
+            portTable.forEach((key, value) -> ret.append("key: ").append(key).append(", value: ").append(value).append("\n"));
+        }
+        if (nextHopTable != null) {
+            ret.append("\nNext hop table: \n");
+            nextHopTable.forEach((key, value) -> ret.append("key: ").append(key).append(", value: ").append(value).append("\n"));
+        }
+
+        if (ret.toString().equals("")) {
+            return "Given MAC has no table entries.";
+        }
+
+        return ret.toString();
+    }
 }
 
 // Learn self IP, self MAC
