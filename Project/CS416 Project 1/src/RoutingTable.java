@@ -1,6 +1,12 @@
 import java.util.HashMap;
 
 public class RoutingTable {
+    public static class RouterTableMissException extends RuntimeException {
+        public RouterTableMissException(String message) {
+            super(message);
+        }
+    }
+
     public HashMap<String, VirtualIP> nextHopTable;
     public HashMap<String, String> portTable;
 
@@ -17,20 +23,36 @@ public class RoutingTable {
         this.portTable.put(subnet, neighborMAC);
     }
 
+    // If there is no next hop, will return null.
+    public VirtualIP getNextHop(String subnet) {
+        return nextHopTable.get(subnet);
+    }
+
+    public String resolveNeighboringSubnetMac(String subnet) throws RouterTableMissException{
+        if (!portTable.containsKey(subnet)) {
+            throw new RouterTableMissException(
+                    "Subnet " + subnet + " is not in the routing table, and no default gateway has "
+                            + "been configured"
+            );
+        }
+
+        return portTable.get(subnet);
+    }
+
     public String toString() {
         StringBuilder ret = new StringBuilder("");
 
-        if (portTable != null) {
+        if (!portTable.isEmpty()) {
             ret.append("\nPort table: \n");
-            portTable.forEach((key, value) -> ret.append("key: ").append(key).append(", value: ").append(value).append("\n"));
+            portTable.forEach((key, value) -> ret.append("subnet: ").append(key).append(", port: ").append(value).append("\n"));
         }
-        if (nextHopTable != null) {
+        if (!nextHopTable.isEmpty()) {
             ret.append("\nNext hop table: \n");
-            nextHopTable.forEach((key, value) -> ret.append("key: ").append(key).append(", value: ").append(value).append("\n"));
+            nextHopTable.forEach((key, value) -> ret.append("subnet: ").append(key).append(", next hop ip: ").append(value).append("\n"));
         }
 
         if (ret.toString().equals("")) {
-            return "Given MAC has no table entries.";
+            return "Empty routing table.";
         }
 
         return ret.toString();

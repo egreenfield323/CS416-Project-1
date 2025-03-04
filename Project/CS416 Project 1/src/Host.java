@@ -10,9 +10,12 @@ import java.util.concurrent.Executors;
 public class Host {
     private static final int PACKET_SIZE = 1024;
 
-    private static VirtualPort switchPort;
+    private static ConfigParser config;
+    private static VirtualPort neighborPort;
     private static int port;
     private static String sourceMac;
+    private static VirtualIP sourceIp;
+    private static VirtualIP defaultGateway;
 
     public static void main(String[] args) {
         readArgs(args);
@@ -34,13 +37,13 @@ public class Host {
 
     private static void readArgs(String[] args) {
         if (args.length < 2) {
-            System.err.println("Usage: [config file path] [virtual MAC address]");
+            System.err.println("Usage: [config file path] [virtual IP address]");
             System.exit(1);
         }
 
-        sourceMac = args[1];
+        sourceIp = new VirtualIP(args[1]);
 
-        System.out.println("Reading config: " + args[0] + ", with MAC " + sourceMac);
+        System.out.println("Reading config: " + args[0] + ", with IP " + sourceIp);
 
         File configPath = new File(System.getProperty("user.dir"), args[0]);
         if (!configPath.isFile()) {
@@ -48,10 +51,12 @@ public class Host {
             System.exit(1);
         }
 
-        ConfigParser config = new ConfigParser(configPath);
+        config = new ConfigParser(configPath);
 
         try {
-            switchPort = config.getNeighbors(sourceMac)[0];
+            defaultGateway = VirtualIP.getDefaultGatewayForSubnet(sourceIp.getSubnet());
+            sourceMac = config.ResolveAddress(sourceIp);
+            neighborPort = config.getNeighbors(sourceMac)[0];
             port = config.getVirtualPort(sourceMac).port;
         }
         catch (Exception e) { // Update later with custom exception
@@ -63,14 +68,30 @@ public class Host {
     private static void sendPacketsInteractively(DatagramSocket socket) {
         try (Scanner in = new Scanner(System.in)) {
             while (true) {
-                System.out.println("Enter a mac address to send this packet to:");
-                String destMac = in.nextLine();
+                System.out.println("Enter an ip address to send this packet to:");
+                VirtualIP destIp = new VirtualIP(in.nextLine());
 
-                System.out.printf("Enter a message to send to %s:\n", destMac);
+                System.out.printf("Enter a message to send to %s:\n", destIp);
                 String message = in.nextLine();
 
-                Frame frame = new Frame(sourceMac, destMac, message);
-                DatagramPacket packet = frame.writePacket(switchPort.ip, switchPort.port);
+                String destMac;
+
+                if (destIp.isInSameSubnet(sourceIp)) {
+                    destMac = config.ResolveAddress(destIp);
+                    System.out.println("Destination is within LAN, sending directly to MAC " + destMac + ".");
+                }
+                else {
+                    destMac = config.ResolveAddress(
+                            VirtualIP.getDefaultGatewayForSubnet(sourceIp.getSubnet())
+                    );
+                    System.out.printf(
+                            "Destination is outside LAN, sending to default gateway %s with MAC %s.\n",
+                            defaultGateway, destMac
+                    );
+                }
+
+                Frame frame = new Frame(sourceMac, destMac, sourceIp, destIp, message);
+                DatagramPacket packet = frame.writePacket(neighborPort);
 
                 try {
                     socket.send(packet);

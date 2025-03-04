@@ -73,43 +73,27 @@ public class Switch {
 
         socket.receive(receivedPacket);
         Frame frame = new Frame();
-        frame.readPacket(receivedPacket);
+        VirtualPort sourcePort = frame.readPacket(receivedPacket);
 
-        // The destination IP and port are actually the sender's ip and port, since DatagramPacket
-        // only stores either the source or destination (depending on whether this switch is sending or
-        // receiving the packet.)
-        ensureInTable(frame.sourceMac, new VirtualPort(frame.destIp, frame.destPort));
+        ensureInTable(frame.sourceMac, sourcePort);
         try {
             VirtualPort port = getTableEntry(frame.destMac);
             System.out.println("Table Hit: " + frame.destMac + " -> " + port);
-            socket.send(addressPacketTo(receivedPacket, port));
+            socket.send(frame.writePacket(port));
         }
         catch (TableMissException exception) {
             System.out.println("Table Miss: " + exception.getMessage());
             System.out.println("Flooding packet.");
-            // Similarly to the previous case, dest ports are source since this frame was received.
-            VirtualPort sourcePort = new VirtualPort(frame.destIp, frame.destPort);
             for (VirtualPort port: ports)
             {
+                // Do not send back to the source.
                 if (port.equals(sourcePort))
                 {
                     continue;
                 }
-                socket.send(addressPacketTo(receivedPacket, port));
+                socket.send(frame.writePacket(port));
             }
         }
-    }
-
-    private static DatagramPacket addressPacketTo(DatagramPacket packet, VirtualPort port)
-    {
-        // This is not passed through Frame because we want to preserve the original source and
-        // destination MAC address, all we are doing is forwarding it.
-        return new DatagramPacket(
-                    packet.getData(),
-                    packet.getLength(),
-                    port.ip,
-                    port.port
-        );
     }
 
     private static VirtualPort getTableEntry(String destinationMac) throws TableMissException{
