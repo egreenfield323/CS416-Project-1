@@ -1,9 +1,6 @@
 import java.io.*;
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class ConfigParser {
 
@@ -77,6 +74,10 @@ public class ConfigParser {
 
         } catch (IOException e) {
             System.err.println("Could not read config file " + e);
+            System.exit(1);
+        } catch (IndexOutOfBoundsException e) {
+            System.err.println("Config file is malformed:\n" + e.getMessage());
+            System.exit(1);
         }
         return result;
     }
