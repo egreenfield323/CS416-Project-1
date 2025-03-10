@@ -32,10 +32,15 @@ public class ConfigParser {
                     continue;
                 }
 
+                int plus_index = current_mac.indexOf('+');
+
+                if (plus_index < 0) {
+                    continue;
+                }
                 if (current_mac.startsWith(mac)) {
-                    macs.add(current_mac.substring(current_mac.indexOf('-') + 1));
+                    macs.add(current_mac.substring(plus_index + 1));
                 } else if (current_mac.endsWith(mac)) {
-                    macs.add(current_mac.substring(0, current_mac.indexOf('-')));
+                    macs.add(current_mac.substring(0, plus_index));
                 }
             }
 
@@ -117,10 +122,10 @@ public class ConfigParser {
                 line = line.trim();
 
                 // Detect when we enter R1 or R2's table
-                if (line.equals("R1 TABLE") && mac.equals("R1")) {
+                if (line.equals("R1_TABLE") && mac.equals("R1")) {
                     isParsingTable = true;
                     continue;
-                } else if (line.equals("R2 TABLE") && mac.equals("R2")) {
+                } else if (line.equals("R2_TABLE") && mac.equals("R2")) {
                     isParsingTable = true;
                     continue;
                 } else if (line.isEmpty() || line.contains("ADDRESS RESOLUTION") || line.contains("LINKS")) {
