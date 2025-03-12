@@ -73,7 +73,9 @@ public class Frame {
         buffer.put(message.getBytes());
 
         byte[] payload = Arrays.copyOf(buffer.array(), buffer.position());
+        System.out.println("Sending packet to virtual port: " + addressTo);
         return new DatagramPacket(payload, payload.length, addressTo.ip, addressTo.port);
+
     }
 
     public static void main(String[] args) throws UnknownHostException {
