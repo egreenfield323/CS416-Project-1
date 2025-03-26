@@ -20,13 +20,12 @@ public class ConfigParser {
 
         Properties prop = new Properties();
 
-
         try (FileInputStream fis = new FileInputStream(this.configFile)) {
             prop.load(fis);
 
             List<String> macs = new ArrayList<>();
 
-            for (Enumeration<?> e = prop.propertyNames(); e.hasMoreElements(); ) {
+            for (Enumeration<?> e = prop.propertyNames(); e.hasMoreElements();) {
                 String current_mac = (String) e.nextElement();
                 if (current_mac.equals(mac)) {
                     continue;

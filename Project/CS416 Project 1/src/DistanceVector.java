@@ -1,4 +1,4 @@
-
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DistanceVector {
@@ -12,18 +12,20 @@ public class DistanceVector {
         map.put(subnet, distance);
     }
 
-    public boolean updateEntries(DistanceVector neighbor) {
-        boolean updatedFlag = false;
+    public int getEntry(String subnet) {
+        return this.map.get(subnet);
+    }
+
+    public String[] updateEntries(DistanceVector neighbor) {
+        ArrayList<String> updatedEntries = new ArrayList<>();
 
         for (String subnet : neighbor.map.keySet()) {
             int value = neighbor.map.get(subnet);
             if (!map.containsKey(subnet) || value + 1 < map.get(subnet)) {
                 this.map.put(subnet, value + 1);
-                updatedFlag = true;
+                updatedEntries.add(subnet);
             }
-
         }
-
-        return updatedFlag;
+        return updatedEntries.toArray(String[]::new);
     }
 }
