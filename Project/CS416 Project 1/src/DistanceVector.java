@@ -28,4 +28,8 @@ public class DistanceVector {
         }
         return updatedEntries.toArray(String[]::new);
     }
+
+    public String[] getKnownSubnets() {
+        return map.keySet().toArray(String[]::new);
+    }
 }
