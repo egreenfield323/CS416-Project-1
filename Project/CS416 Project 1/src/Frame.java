@@ -10,24 +10,23 @@ public class Frame {
     public VirtualIP sourceIp;
     public String sourceMac;
     public String destMac;
-    public String message;
 
-    public Frame(String sMAC, String dMAC, VirtualIP sIP, VirtualIP dIP, String msg) {
+    public Frame(String sMAC, String dMAC, VirtualIP sIP, VirtualIP dIP, byte[] data) {
         sourceMac = sMAC;
         destMac = dMAC;
         sourceIp = sIP;
         destIp = dIP;
-        message = msg;
+        this.data = data;
     }
 
     // Intended for frames that read from a packet.
     public Frame() {
-        this("", "", new VirtualIP("", ""), new VirtualIP("", ""), "");
+        this("", "", new VirtualIP("", ""), new VirtualIP("", ""), new byte[0]);
     }
 
     public VirtualPort readPacket(DatagramPacket packet) {
-        data = packet.getData();
-        ByteBuffer buffer = ByteBuffer.wrap(data);
+        byte[] packet_data = packet.getData();
+        ByteBuffer buffer = ByteBuffer.wrap(packet_data);
 
         int sourceMacLength = buffer.getInt();
         byte[] sourceMacBytes = new byte[sourceMacLength];
@@ -49,17 +48,17 @@ public class Frame {
         buffer.get(destIpBytes);
         destIp = new VirtualIP(new String(destIpBytes));
 
-        int messageLength = buffer.getInt();
-        byte[] messageBytes = new byte[messageLength];
-        buffer.get(messageBytes);
-        message = new String(messageBytes);
+        int dataLength = buffer.getInt();
+        this.data = new byte[dataLength];
+        buffer.get(this.data);
 
         // Returning the "port" the packet was received from. (Basically layer 1.)
         return new VirtualPort(packet.getAddress(), packet.getPort());
     }
 
     public DatagramPacket writePacket(VirtualPort addressTo) {
-        // payload order is source MAC, destination MAC, source IP, destination IP, message
+        // payload order is source MAC, destination MAC, source IP, destination IP,
+        // message
         ByteBuffer buffer = ByteBuffer.allocate(1024);
         buffer.putInt(sourceMac.getBytes().length);
         buffer.put(sourceMac.getBytes());
@@ -69,8 +68,8 @@ public class Frame {
         buffer.put(sourceIp.toString().getBytes());
         buffer.putInt(destIp.toString().getBytes().length);
         buffer.put(destIp.toString().getBytes());
-        buffer.putInt(message.getBytes().length);
-        buffer.put(message.getBytes());
+        buffer.putInt(this.data.length);
+        buffer.put(this.data);
 
         byte[] payload = Arrays.copyOf(buffer.array(), buffer.position());
         System.out.println("Sending packet to virtual port: " + addressTo);
@@ -80,7 +79,8 @@ public class Frame {
 
     public static void main(String[] args) throws UnknownHostException {
 
-        Frame test = new Frame("7c:7e:eb:c5:e1:57", "97:f9:01:c2:8e:e7", new VirtualIP("net1.A"), new VirtualIP("net3.D"), "hello");
+        Frame test = new Frame("7c:7e:eb:c5:e1:57", "97:f9:01:c2:8e:e7", new VirtualIP("net1.A"),
+                new VirtualIP("net3.D"), new byte[0]);
         VirtualPort sentTo = new VirtualPort(InetAddress.getByName("127.0.0.1"), 3000);
 
         DatagramPacket packet = test.writePacket(sentTo);
@@ -89,7 +89,6 @@ public class Frame {
 
         System.out.printf(
                 "Source Mac: %s, Destination Mac: %s, Source IP: %s, Destination IP: %s, Message:\n%s\nVirtual Port: %s\n",
-                test.sourceMac, test.destMac, test.sourceIp, test.destIp, test.message, receivedFrom
-        );
+                test.sourceMac, test.destMac, test.sourceIp, test.destIp, test.data, receivedFrom);
     }
 }
