@@ -19,6 +19,14 @@ public class Frame {
         this.data = data;
     }
 
+    public Frame(String sMAC, String dMAC, VirtualIP sIP, VirtualIP dIP) {
+        sourceMac = sMAC;
+        destMac = dMAC;
+        sourceIp = sIP;
+        destIp = dIP;
+        this.data = new byte[0];
+    }
+
     // Intended for frames that read from a packet.
     public Frame() {
         this("", "", new VirtualIP("", ""), new VirtualIP("", ""), new byte[0]);
