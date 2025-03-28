@@ -59,7 +59,7 @@ public class ConfigParser {
             System.err.println("Could not find any neighbors for MAC address " + mac);
         }
 
-        return result.toArray(new VirtualPort[0]);
+        return result.toArray(VirtualPort[]::new);
     }
 
     public VirtualPort getVirtualPort(String mac) {
@@ -121,10 +121,7 @@ public class ConfigParser {
                 line = line.trim();
 
                 // Detect when we enter R1 or R2's table
-                if (line.equals("R1_TABLE") && mac.equals("R1")) {
-                    isParsingTable = true;
-                    continue;
-                } else if (line.equals("R2_TABLE") && mac.equals("R2")) {
+                if (line.endsWith("TABLE") && line.startsWith(mac)) {
                     isParsingTable = true;
                     continue;
                 } else if (line.isEmpty() || line.contains("ADDRESS RESOLUTION") || line.contains("LINKS")) {
@@ -134,17 +131,11 @@ public class ConfigParser {
 
                 if (isParsingTable) {
                     // Handles new table entries
-                    if (line.contains("-") && !line.contains(".")) {
+                    if (line.contains("-")) {
                         // Port entry (e.g., net1-S1)
                         String[] parts = line.split("-");
                         if (parts.length == 2) {
                             table.addPortEntry(parts[0], parts[1]);
-                        }
-                    } else if (line.contains("-") && line.contains(".")) {
-                        // Next-hop entry (e.g., net3-net2.R1)
-                        String[] parts = line.split("-");
-                        if (parts.length == 2) {
-                            table.addNextHopEntry(parts[0], new VirtualIP(parts[1]));
                         }
                     }
                 }
