@@ -25,12 +25,10 @@ public class Host {
             try {
                 service.submit(() -> receivePackets(socket));
                 sendPacketsInteractively(socket);
-            }
-            finally {
+            } finally {
                 service.shutdown();
             }
-        }
-        catch (SocketException exception) {
+        } catch (SocketException exception) {
             System.err.println("Could not get socket for port " + port + ": " + exception.getMessage());
         }
     }
@@ -58,8 +56,7 @@ public class Host {
             sourceMac = config.ResolveAddress(sourceIp);
             neighborPort = config.getNeighbors(sourceMac)[0];
             port = config.getVirtualPort(sourceMac).port;
-        }
-        catch (Exception e) { // Update later with custom exception
+        } catch (Exception e) { // Update later with custom exception
             System.err.println(sourceMac + " is not a valid virtual MAC address.");
             System.exit(1);
         }
@@ -79,24 +76,22 @@ public class Host {
                 if (destIp.isInSameSubnet(sourceIp)) {
                     destMac = config.ResolveAddress(destIp);
                     System.out.println("Destination is within LAN, sending directly to MAC " + destMac + ".");
-                }
-                else {
+                } else {
                     destMac = config.ResolveAddress(
-                            VirtualIP.getDefaultGatewayForSubnet(sourceIp.getSubnet())
-                    );
+                            VirtualIP.getDefaultGatewayForSubnet(sourceIp.getSubnet()));
                     System.out.printf(
                             "Destination is outside LAN, sending to default gateway %s with MAC %s.\n",
-                            defaultGateway, destMac
-                    );
+                            defaultGateway, destMac);
                 }
 
-                Frame frame = new Frame(sourceMac, destMac, sourceIp, destIp, message);
+                Frame frame = new Frame(sourceMac, destMac, sourceIp, destIp);
+                MessageFrame messageFrame = new MessageFrame(frame);
+                messageFrame.addMessage(message);
                 DatagramPacket packet = frame.writePacket(neighborPort);
 
                 try {
                     socket.send(packet);
-                }
-                catch (IOException exception) {
+                } catch (IOException exception) {
                     System.err.println("Failed to send packet: " + exception.getMessage());
                 }
             }
@@ -104,11 +99,9 @@ public class Host {
     }
 
     private static void receivePackets(DatagramSocket socket) {
-        while (true)
-        {
+        while (true) {
             DatagramPacket receivedPacket = new DatagramPacket(
-                    new byte[PACKET_SIZE], PACKET_SIZE
-            );
+                    new byte[PACKET_SIZE], PACKET_SIZE);
 
             try {
                 socket.receive(receivedPacket);
@@ -118,19 +111,17 @@ public class Host {
                 if (!frame.destMac.equals(sourceMac)) {
                     System.out.printf(
                             "Received packet addressed to %s from %s, dropping.\n",
-                            frame.destMac, frame.sourceMac
-                    );
+                            frame.destMac, frame.sourceMac);
                     continue;
                 }
 
-                System.out.printf("Received from %s:\n%s\n", frame.sourceMac, frame.message);
-            }
-            catch (IOException exception) {
+                MessageFrame messageFrame = new MessageFrame(frame);
+
+                System.out.printf("Received from %s:\n%s\n", frame.sourceMac, messageFrame.getMessage());
+            } catch (IOException exception) {
                 System.err.println("Failure receiving packet: " + exception.getMessage());
                 break;
             }
         }
     }
-
-
 }
