@@ -16,9 +16,11 @@ public class DistanceVectorFrame {
             length += subnet.getBytes().length;
         }
 
-        length += Integer.BYTES * 2 * knownSubnets.length;
+        length += Integer.BYTES * 2 * knownSubnets.length + 1;
 
         ByteBuffer buffer = ByteBuffer.allocate(length);
+
+        buffer.put((byte) Frame.FrameType.DISTANCE_VECTOR.ordinal());
 
         for (String subnet : knownSubnets) {
             buffer.putInt(subnet.getBytes().length);
@@ -33,6 +35,8 @@ public class DistanceVectorFrame {
         DistanceVector dv = new DistanceVector();
 
         ByteBuffer buffer = ByteBuffer.wrap(frame.data);
+
+        buffer.get();
 
         while (buffer.hasRemaining()) {
             int subnetLength = buffer.getInt();

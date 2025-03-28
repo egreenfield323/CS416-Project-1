@@ -5,6 +5,11 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 public class Frame {
+    public enum FrameType {
+        MESSAGE,
+        DISTANCE_VECTOR,
+    }
+
     public byte[] data;
     public VirtualIP destIp;
     public VirtualIP sourceIp;
@@ -62,6 +67,15 @@ public class Frame {
 
         // Returning the "port" the packet was received from. (Basically layer 1.)
         return new VirtualPort(packet.getAddress(), packet.getPort());
+    }
+
+    public FrameType identifyFrame() {
+        if (data.length == 0) {
+            throw new RuntimeException(
+                    "Frame must contain data before it can be identified");
+        }
+
+        return FrameType.values()[data[0]];
     }
 
     public DatagramPacket writePacket(VirtualPort addressTo) {
