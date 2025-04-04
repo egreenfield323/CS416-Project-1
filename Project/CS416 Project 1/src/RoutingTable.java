@@ -7,8 +7,8 @@ public class RoutingTable {
         }
     }
 
-    public HashMap<String, VirtualIP> nextHopTable;
-    public HashMap<String, String> portTable;
+    public final HashMap<String, VirtualIP> nextHopTable;
+    public final HashMap<String, String> portTable;
 
     public RoutingTable() {
         this.nextHopTable = new HashMap<>();
@@ -36,6 +36,10 @@ public class RoutingTable {
         }
 
         return portTable.get(subnet);
+    }
+
+    public String[] getDirectlyConnectedSubnets() {
+        return portTable.keySet().toArray(new String[0]);
     }
 
     public DistanceVector getInitialDistanceVector() {

@@ -32,4 +32,15 @@ public class DistanceVector {
     public String[] getKnownSubnets() {
         return map.keySet().toArray(String[]::new);
     }
+
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        result.append("Distance Vector:\n");
+        for (String subnet: map.keySet()) {
+            int distance = getEntry(subnet);
+            result.append(String.format("%s: %d\n", subnet, distance));
+        }
+
+        return result.toString();
+    }
 }

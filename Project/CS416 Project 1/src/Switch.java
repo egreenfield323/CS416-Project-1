@@ -14,6 +14,7 @@ public class Switch {
 
     private static final int PACKET_SIZE = 1024;
 
+
     private static VirtualPort[] ports;
     private static final HashMap<String, VirtualPort> addressTable = new HashMap<>();
     private static int hostingPort;
@@ -75,6 +76,12 @@ public class Switch {
         Frame frame = new Frame();
         VirtualPort sourcePort = frame.readPacket(receivedPacket);
 
+        if (frame.destMac.equals(Frame.BROADCAST_MAC)) {
+            System.out.println("Broadcast frame received, flooding.");
+            floodFrame(frame, socket, sourcePort);
+            return;
+        }
+
         ensureInTable(frame.sourceMac, sourcePort);
         try {
             VirtualPort port = getTableEntry(frame.destMac);
@@ -83,16 +90,20 @@ public class Switch {
         }
         catch (TableMissException exception) {
             System.out.println("Table Miss: " + exception.getMessage());
-            System.out.println("Flooding packet.");
-            for (VirtualPort port: ports)
+            floodFrame(frame, socket, sourcePort);
+        }
+    }
+
+    private static void floodFrame(Frame frame, DatagramSocket socket, VirtualPort sourcePort) throws IOException {
+        System.out.println("Flooding packet.");
+        for (VirtualPort port: ports)
+        {
+            // Do not send back to the source.
+            if (port.equals(sourcePort))
             {
-                // Do not send back to the source.
-                if (port.equals(sourcePort))
-                {
-                    continue;
-                }
-                socket.send(frame.writePacket(port));
+                continue;
             }
+            socket.send(frame.writePacket(port));
         }
     }
 

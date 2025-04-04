@@ -106,6 +106,28 @@ public class ConfigParser {
         return mac;
     }
 
+    public VirtualIP getRouterIPForSubnet(String mac, String subnet) {
+        Properties prop = new Properties();
+
+        try (FileInputStream fis = new FileInputStream(this.configFile)) {
+
+            prop.load(fis);
+            for (String ipString: prop.stringPropertyNames()) {
+                String matchingMac = prop.getProperty(ipString);
+                if (matchingMac.equals(mac)) {
+                    VirtualIP ip = new VirtualIP(ipString);
+                    if (ip.getSubnet().equals(subnet)) {
+                        return ip;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Could not read config file " + e);
+        }
+
+        return null;
+    }
+
     public VirtualPort GetVirtualPort(VirtualIP vIP) {
         return getVirtualPort(ResolveAddress(vIP));
     }

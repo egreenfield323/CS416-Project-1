@@ -10,6 +10,8 @@ public class Frame {
         DISTANCE_VECTOR,
     }
 
+    public static final String BROADCAST_MAC = "FLOOD";
+
     public byte[] data;
     public VirtualIP destIp;
     public VirtualIP sourceIp;

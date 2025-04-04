@@ -1,4 +1,6 @@
 public class VirtualIP {
+    public static final VirtualIP BROADCAST = new VirtualIP("broad", "cast");
+
     private static final String defaultGatewayIPSuffix = "DG";
 
     private final String subnet, end;
