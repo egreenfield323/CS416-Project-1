@@ -19,7 +19,7 @@ public class MessageFrame {
         buffer.put(typeByte);
         buffer.put(message.getBytes());
 
-        frame.data = message.getBytes();
+        frame.data = buffer.array();
     }
 
     public String getMessage() {
