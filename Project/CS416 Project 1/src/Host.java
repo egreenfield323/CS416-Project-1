@@ -117,7 +117,7 @@ public class Host {
 
                 MessageFrame messageFrame = new MessageFrame(frame);
 
-                System.out.printf("Received from %s:\n%s\n", frame.sourceMac, messageFrame.getMessage());
+                System.out.printf("Received from %s:\n%s\n", frame.sourceIp, messageFrame.getMessage());
             } catch (IOException exception) {
                 System.err.println("Failure receiving packet: " + exception.getMessage());
                 break;
